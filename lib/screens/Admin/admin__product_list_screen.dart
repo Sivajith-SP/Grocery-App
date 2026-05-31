@@ -21,28 +21,23 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
   @override
   void initState() {
     super.initState();
-    productsFuture=_productService.getAllProducts();
+    productsFuture = _productService.getAllProducts();
     loadProducts();
   }
 
   //delete products
-  void deleteProduct(String id) async{
-
+  void deleteProduct(String id) async {
     await _productService.deleteProduct(id);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         duration: Duration(microseconds: 900),
         backgroundColor: Colors.red,
-        content: Text(
-          "Product Deleted",
-          style: TextStyle(color: Colors.white),
-        ),
+        content: Text("Product Deleted", style: TextStyle(color: Colors.white)),
       ),
     );
 
     loadProducts();
-
   }
 
   //load products
@@ -61,79 +56,116 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Admin Products"),
-        centerTitle: true,
+      appBar: AppBar(title: Text("Admin Products"), centerTitle: true),
+
+      body: FutureBuilder(
+        future: _productService.getAllProducts(),
+        builder: (context, snapshot) {
+          return isLoading
+              ? Center(child: CircularProgressIndicator())
+              : products.isEmpty
+              ? Center(child: Text("No Products found"))
+              : ListView.builder(
+                  padding: .symmetric(horizontal: 10),
+                  itemCount: products.length,
+                  itemBuilder: (context, index) {
+                    final product = products[index];
+
+                    return Card(
+                      elevation: 0,
+                      margin: .all(10),
+                      child: Padding(
+                        padding: .all(10),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                //img
+                                // Image
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network(
+                                    product.image,
+                                    height: 70,
+                                    width: 70,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                          if (loadingProgress == null)
+                                            return child;
+
+                                          return const SizedBox(
+                                            height: 70,
+                                            width: 70,
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        height: 70,
+                                        width: 70,
+                                        color: Colors.grey.shade200,
+                                        child: const Icon(
+                                          Icons.image_not_supported,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+
+                                //details
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: .start,
+                                    children: [
+                                      Text(
+                                        product.title,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: .bold,
+                                        ),
+                                      ),
+                                      Text("\₹ ${product.price} "),
+                                    ],
+                                  ),
+                                ),
+
+                                //edit
+                                IconButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            EditProductScreen(product: product),
+                                      ),
+                                    );
+                                  },
+                                  icon: Icon(Icons.edit, color: Colors.green),
+                                ),
+                                //delete
+                                IconButton(
+                                  onPressed: () => deleteProduct(product.id!),
+                                  icon: Icon(
+                                    Icons.delete_outline,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+        },
       ),
-
-      body: FutureBuilder(future: _productService.getAllProducts(), builder: (context,snapshot){
-        return  isLoading
-            ? Center(child: CircularProgressIndicator())
-            : products.isEmpty
-            ? Center(child: Text("No Products found"))
-            : ListView.builder(
-          padding: .symmetric(horizontal: 10),
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              final product = products[index];
-
-              return Card(
-                elevation: 0,
-                margin: .all(10),
-                child: Padding(
-                  padding: .all(10),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          //img
-                          ClipRRect(
-                            borderRadius: .circular(10),
-                            child: Image.network(product.image, height: 70,
-                              width: 70,
-                              fit: .cover,),
-                          ),
-
-                          SizedBox(width: 12,),
-
-                          //details
-
-                          Expanded(
-                              child: Column(
-                                crossAxisAlignment: .start,
-                                children: [
-                                  Text(
-                                    product.title, style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: .bold,
-                                  ),),
-                                  Text("\₹ ${product.price} "),
-                                ],
-                              )
-                          ),
-
-                          //edit
-                          IconButton(
-                            onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => EditProductScreen(product: product),));
-                            },
-                            icon: Icon(Icons.edit,color: Colors.green,),
-                          ),
-                          //delete
-                          IconButton(
-                            onPressed: () => deleteProduct(product.id!),
-                            icon: Icon(Icons.delete_outline,color: Colors.red,),
-                          ),
-
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              );
-            }
-        );
-      })
     );
   }
 }

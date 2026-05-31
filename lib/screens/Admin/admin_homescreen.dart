@@ -90,21 +90,50 @@ class _AdminHomescreenState extends State<AdminHomescreen> {
         // ),
         actions: [
           IconButton(
-            onPressed: () async{
-              Navigator.of(context, rootNavigator: true).pop();
-
-              await FirebaseAuth.instance.signOut();
-              // final prefs = await SharedPreferences.getInstance();
-              // await prefs.setBool("isLoggedIn", false);
-
-              Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/logIn',
-                      (route) => false,
-              );
-            },
             icon: const Icon(Icons.logout),
-          )
+            onPressed: () async {
+              final shouldLogout = await showDialog<bool>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("Logout"),
+                    content: const Text(
+                      "Are you sure you want to logout?",
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context, false);
+                        },
+                        child: const Text("Cancel",style: TextStyle(color: Colors.grey),),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context, true);
+                        },
+                        child: const Text("Logout"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (shouldLogout == true) {
+                await FirebaseAuth.instance.signOut();
+
+                if (context.mounted) {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/logIn',
+                        (route) => false,
+                  );
+                }
+              }
+            },
+          ),
         ],
       ),
 

@@ -177,11 +177,19 @@ class UserOrderCard extends StatelessWidget {
                     //IMAGE
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
+                      child:Image.network(
                         item['image'] ?? '',
                         height: 50,
                         width: 50,
                         fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 50,
+                            width: 50,
+                            color: Colors.grey.shade200,
+                            child: const Icon(Icons.image_not_supported),
+                          );
+                        },
                       ),
                     ),
 

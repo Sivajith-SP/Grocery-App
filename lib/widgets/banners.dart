@@ -14,7 +14,6 @@ class BannerCarousel extends StatefulWidget {
 }
 
 class _BannerCarouselState extends State<BannerCarousel> {
-
   bool isLoading = true;
 
   @override
@@ -24,8 +23,8 @@ class _BannerCarouselState extends State<BannerCarousel> {
   }
 
   Future<void> fetchData() async {
-   final bannerProvider = Provider.of<BannerProvider>(context,listen: false);
-   await bannerProvider.fetchBanners();
+    final bannerProvider = Provider.of<BannerProvider>(context, listen: false);
+    await bannerProvider.fetchBanners();
     setState(() {
       isLoading = false;
     });
@@ -36,7 +35,9 @@ class _BannerCarouselState extends State<BannerCarousel> {
     final bannerProvider = Provider.of<BannerProvider>(context);
 
     if (isLoading) {
-      return Center(child: CircularProgressIndicator(color:  const Color(0xffFF7A00)));
+      return Center(
+        child: CircularProgressIndicator(color: const Color(0xffFF7A00)),
+      );
     }
 
     if (bannerProvider.banners.isEmpty) {
@@ -66,8 +67,15 @@ class _BannerCarouselState extends State<BannerCarousel> {
                   );
                 },
               ),
-              if(banner.title.isNotEmpty)
-              Positioned(left:10,bottom:10,child: Text(banner.title,style: TextStyle(color: Colors.white),)),
+              if (banner.title.isNotEmpty)
+                Positioned(
+                  left: 10,
+                  bottom: 10,
+                  child: Text(
+                    banner.title,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
             ],
           ),
         );

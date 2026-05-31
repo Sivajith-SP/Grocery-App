@@ -112,18 +112,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         return _categoryCard(
                           text: category.name,
                           url: category.image,
-                          onTap: () async {
-                            final productService = ProductServices();
-
-                            final products = await productService
-                                .getProductsByCategory(category.id);
-
+                          onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ProductDetailScreen(
                                   title: category.name,
-                                  products: products,
+                                  categoryId: category.id,
                                 ),
                               ),
                             );
@@ -225,36 +220,97 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 }
 
-// PRODUCT LIST SCREEN
-class ProductDetailScreen extends StatelessWidget {
+class ProductDetailScreen extends StatefulWidget {
   final String title;
-  final List<Product> products;
+  final String categoryId;
 
   const ProductDetailScreen({
     super.key,
     required this.title,
-    required this.products,
+    required this.categoryId,
   });
+
+  @override
+  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+}
+
+class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  bool isLoading = true;
+  List<Product> products = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProducts();
+  }
+
+  Future<void> fetchProducts() async {
+    try {
+      final productService = ProductServices();
+
+      final fetchedProducts = await productService.getProductsByCategory(
+        widget.categoryId,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        products = fetchedProducts;
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint("Error loading products: $e");
+
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: GridView.builder(
+
+      body: isLoading
+          ? const Center(
+        child: CircularProgressIndicator(
+          color: Color(0xffFF7A00),
+        ),
+      )
+          : products.isEmpty
+          ? const Center(
+        child: Text(
+          "No Products Found",
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey,
+          ),
+        ),
+      )
+          : GridView.builder(
         padding: const EdgeInsets.all(20),
         itemCount: products.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate:
+        const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           childAspectRatio: 0.66,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
         ),
         itemBuilder: (context, index) {
-          return ProductCard(product: products[index]);
+          return ProductCard(
+            product: products[index],
+          );
         },
       ),
     );

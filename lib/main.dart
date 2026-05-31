@@ -33,13 +33,13 @@ import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  print("Background message received");
-  print("title:${message.notification?.title}");
-  print("body:${message.notification?.body}");
-}
+// @pragma('vm:entry-point')
+// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   await Firebase.initializeApp();
+//   print("Background message received");
+//   print("title:${message.notification?.title}");
+//   print("body:${message.notification?.body}");
+// }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,21 +55,21 @@ Future<void> main() async {
     ),
   );
 
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-  NotificationSettings settings = await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false
-  );
-
-  print("Permission status:${settings.authorizationStatus}");
-
-  String? fcmToken = await FirebaseMessaging.instance.getToken();
-  print("FCm token:$fcmToken");
-
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // FirebaseMessaging messaging = FirebaseMessaging.instance;
+  //
+  // NotificationSettings settings = await messaging.requestPermission(
+  //     alert: true,
+  //     badge: true,
+  //     sound: true,
+  //     provisional: false
+  // );
+  //
+  // print("Permission status:${settings.authorizationStatus}");
+  //
+  // String? fcmToken = await FirebaseMessaging.instance.getToken();
+  // print("FCm token:$fcmToken");
+  //
+  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(
     Sizer(
